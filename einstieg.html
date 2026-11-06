@@ -1,0 +1,750 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1D2126">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KAR-Mischpult">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+</head><body>
+<title>KAR-Mischpult Einstieg</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: Mischpult mit 11 Reglern (6 Analysatoren inkl. Gleichgewicht | 5 Druckbedingungen), darunter Auswertung (Radar, Gleichgewichtsregulation, Wechselwirkungen), dann Begründung und Rückmeldung. */
+:root {
+  --bg: #E7EAED;
+  --panel: #F7F8F9;
+  --console: #DCE0E4;
+  --ink: #1A1F25;
+  --muted: #56616C;
+  --line: #C3CAD1;
+  --rail: #B3BBC3;
+  --druck: #D2541A;
+  --druck-soft: #F6DCCD;
+  --info: #23709F;
+  --info-soft: #D2E5F1;
+  --gg: #1B7A6A;
+  --gg-soft: #D2ECE6;
+  --ok: #2E7D4F;
+  --ok-soft: #D7EDDF;
+  --warn: #9A6A00;
+  --warn-soft: #F5E8C4;
+  --bad: #B3261E;
+  --bad-soft: #F6D6D3;
+  --cap: #2A3038;
+  --cap-line: #F7F8F9;
+  --on-druck: #FFFFFF;
+  --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  --body: "Source Sans 3", "Segoe UI", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14171B; --panel: #1D2126; --console: #252A30; --ink: #E7EAEE; --muted: #9CA6B0;
+    --line: #353C44; --rail: #48515B; --druck: #F07A3F; --druck-soft: #4A2A1B; --info: #5FA9DA; --info-soft: #1B3445;
+    --gg: #4FC1AC; --gg-soft: #173A34;
+    --ok: #6CC48F; --ok-soft: #1D3828; --warn: #E3B341; --warn-soft: #3D3214; --bad: #F08A82; --bad-soft: #45201D;
+    --cap: #D9DEE3; --cap-line: #1D2126; --on-druck: #14171B; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14171B; --panel: #1D2126; --console: #252A30; --ink: #E7EAEE; --muted: #9CA6B0;
+  --line: #353C44; --rail: #48515B; --druck: #F07A3F; --druck-soft: #4A2A1B; --info: #5FA9DA; --info-soft: #1B3445;
+  --gg: #4FC1AC; --gg-soft: #173A34;
+  --ok: #6CC48F; --ok-soft: #1D3828; --warn: #E3B341; --warn-soft: #3D3214; --bad: #F08A82; --bad-soft: #45201D;
+  --cap: #D9DEE3; --cap-line: #1D2126; --on-druck: #14171B; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 48px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.05; }
+h1 { font-size: clamp(2.4rem, 6vw, 3.6rem); font-weight: 700; letter-spacing: 0.01em; }
+h2 { font-size: 1.6rem; font-weight: 600; }
+h3 { font-size: 1.2rem; font-weight: 600; }
+p { margin: 0; }
+.eyebrow { font-family: var(--display); font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.85rem; color: var(--muted); }
+header { display: flex; flex-direction: column; gap: 10px; }
+header p.lead { max-width: 72ch; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 0.9rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex: none; }
+
+/* Modus-Umschalter */
+.modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; background: var(--console); padding: 6px; border-radius: 10px; }
+.modes button { font-family: var(--display); font-weight: 600; font-size: 1.05rem; letter-spacing: 0.02em; border: 0; background: transparent; color: var(--muted); padding: 10px 8px; border-radius: 7px; cursor: pointer; line-height: 1.1; }
+.modes button small { display: block; font-family: var(--body); font-weight: 400; font-size: 0.75rem; letter-spacing: 0; }
+.modes button[aria-selected="true"] { background: var(--panel); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,0.12); }
+button:focus-visible, textarea:focus-visible, input:focus-visible, .track:focus-visible { outline: 3px solid var(--info); outline-offset: 2px; }
+
+/* Auftrag */
+.task { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.pick { display: flex; flex-wrap: wrap; gap: 8px; }
+.pick button, .chips button { font: inherit; font-size: 0.92rem; border: 1px solid var(--line); background: transparent; color: var(--ink); padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+.pick button[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+.pick button .tick { color: var(--ok); font-weight: 700; }
+.pick button[aria-pressed="true"] .tick { color: var(--ok-soft); }
+.situation { font-size: 1.05rem; max-width: 72ch; }
+.goal { border-left: 4px solid var(--druck); padding: 8px 12px; background: var(--druck-soft); border-radius: 0 6px 6px 0; max-width: 74ch; }
+.steps { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 4px; max-width: 74ch; font-size: 0.95rem; }
+.meas { display: flex; flex-direction: column; gap: 6px; }
+.meas-row { display: flex; flex-wrap: wrap; gap: 10px 20px; }
+.meas-row label { display: inline-flex; align-items: center; gap: 8px; font-size: 0.92rem; }
+.meas-row input { font: inherit; width: 4.5em; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+.free-input { display: flex; flex-direction: column; gap: 6px; max-width: 520px; }
+label.small, .small-label { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+input[type="text"], textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; width: 100%; }
+textarea { min-height: 110px; resize: vertical; }
+
+/* Mischpult */
+.console { background: var(--console); border-radius: 14px; padding: 16px; display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 16px; }
+.console.mode-b { grid-template-columns: minmax(0, 1.4fr) minmax(0, 5fr); }
+.group { background: var(--panel); border-radius: 10px; padding: 14px 10px 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.group-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.group-head h3 { display: flex; align-items: center; gap: 8px; }
+.group-head .scale { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+.faders { display: grid; gap: 4px; }
+#faders-info { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+#faders-druck { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.mode-b #faders-info { grid-template-columns: minmax(0, 1fr); }
+.fader { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; }
+.fader.gg-fader { border-left: 2px dashed var(--line); padding-left: 4px; }
+.mode-b .fader.gg-fader { border-left: 0; padding-left: 0; }
+.readout { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; min-width: 2.3em; text-align: center; padding: 2px 4px; border-radius: 6px; background: var(--bg); font-variant-numeric: tabular-nums; }
+.level { font-size: 0.72rem; color: var(--muted); text-align: center; min-height: 1.2em; line-height: 1.1; }
+.eff { font-family: var(--mono); font-size: 0.68rem; font-weight: 700; min-height: 1.3em; text-align: center; font-variant-numeric: tabular-nums; }
+.track { position: relative; width: 100%; height: 230px; cursor: grab; touch-action: none; border-radius: 8px; }
+.track:active { cursor: grabbing; }
+.rail { position: absolute; left: 50%; top: 14px; bottom: 14px; width: 6px; transform: translateX(-50%); background: var(--rail); border-radius: 3px; }
+.ghost { position: absolute; left: 50%; bottom: 14px; width: 16px; transform: translateX(-50%); border-radius: 3px; height: calc(var(--epos, 0) * (100% - 28px)); opacity: 0.28; transition: height 0.12s ease; }
+.fill { position: absolute; left: 50%; bottom: 14px; width: 6px; transform: translateX(-50%); border-radius: 3px; height: calc(var(--pos) * (100% - 28px)); transition: height 0.12s ease; }
+.tickmark { position: absolute; left: 50%; width: 14px; height: 1px; background: var(--rail); transform: translateX(-50%); }
+.tickmark.major { width: 28px; }
+.cap { position: absolute; left: 50%; width: 36px; height: 26px; transform: translateX(-50%); bottom: calc(var(--pos) * (100% - 28px) + 1px); background: var(--cap); border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.25); transition: bottom 0.12s ease; }
+.cap::after { content: ""; position: absolute; left: 6px; right: 6px; top: 50%; height: 2px; margin-top: -1px; background: var(--cap-line); }
+.marker { position: absolute; left: 2px; right: 2px; height: 0; border-top: 2px dashed var(--ink); bottom: calc(var(--mpos) * (100% - 28px) + 14px); pointer-events: none; }
+.marker span { position: absolute; right: -2px; top: -1.25em; font-family: var(--mono); font-size: 0.6rem; font-weight: 700; background: var(--ink); color: var(--panel); padding: 0 4px; border-radius: 3px; }
+.fader-name { font-family: var(--display); font-weight: 600; font-size: 0.95rem; text-align: center; line-height: 1.05; hyphens: auto; overflow-wrap: anywhere; }
+.fader-sub { font-size: 0.68rem; color: var(--muted); text-align: center; line-height: 1.1; min-height: 2.2em; overflow-wrap: anywhere; }
+.info .fill, .info .ghost { background: var(--info); }
+.druck .fill, .druck .ghost { background: var(--druck); }
+.gg-fader .fill, .gg-fader .ghost { background: var(--gg); }
+.gg-fader .fader-name { color: var(--gg); }
+.info .eff { color: var(--info); }
+.druck .eff { color: var(--druck); }
+.gg-fader .eff { color: var(--gg); }
+.fader.active .readout { outline: 2px solid currentColor; }
+.focus-tag { visibility: hidden; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 1px 7px; border-radius: 999px; background: var(--druck); color: var(--on-druck); }
+.fader.focus { background: var(--druck-soft); border-radius: 10px; box-shadow: inset 0 0 0 2px var(--druck); }
+.fader.focus .focus-tag { visibility: visible; }
+.fader.gg-fader.focus { background: var(--gg-soft); box-shadow: inset 0 0 0 2px var(--gg); }
+.fader.gg-fader.focus .focus-tag { background: var(--gg); }
+.fader.focus .fader-name { color: var(--druck); }
+.fader.gg-fader.focus .fader-name { color: var(--gg); }
+.focus-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.focus-chip { font-size: 0.85rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--druck); color: var(--on-druck); }
+.focus-chip.gg { background: var(--gg); }
+.info .fader.active .readout { color: var(--info); }
+.druck .fader.active .readout { color: var(--druck); }
+.info .fader.gg-fader.active .readout { color: var(--gg); }
+.deviation { font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 999px; min-height: 1.4em; }
+.dev-0 { background: var(--ok-soft); color: var(--ok); }
+.dev-1 { background: var(--warn-soft); color: var(--warn); }
+.dev-2 { background: var(--bad-soft); color: var(--bad); }
+
+.explain { grid-column: 1 / -1; background: var(--panel); border-radius: 10px; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: flex-start; }
+.explain .tag { font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; flex: none; }
+.tag.info { background: var(--info-soft); color: var(--info); }
+.tag.druck { background: var(--druck-soft); color: var(--druck); }
+.tag.gg { background: var(--gg-soft); color: var(--gg); }
+.explain p { max-width: 80ch; font-size: 0.95rem; flex: 1 1 260px; min-width: 0; }
+
+/* Auswertung */
+.analysis { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.radar-wrap { width: 100%; max-width: 440px; margin: 0 auto; }
+.radar-wrap svg { width: 100%; height: auto; display: block; }
+.radar-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.82rem; color: var(--muted); }
+.radar-legend i { display: inline-block; width: 18px; height: 0; border-top-width: 3px; border-top-style: solid; vertical-align: middle; margin-right: 6px; }
+.svg-label { fill: var(--muted); font-family: var(--body); font-size: 12px; }
+.svg-label.strong { fill: var(--ink); font-weight: 700; }
+.svg-ring { fill: none; stroke: var(--line); stroke-width: 1; }
+.svg-axis { stroke: var(--line); stroke-width: 1; }
+.poly-set { fill: var(--ink); fill-opacity: 0.08; stroke: var(--ink); stroke-width: 2; }
+.poly-eff { fill: var(--druck); fill-opacity: 0.14; stroke: var(--druck); stroke-width: 2; stroke-dasharray: 6 4; }
+.poly-exp { fill: none; stroke: var(--gg); stroke-width: 2.5; stroke-dasharray: 2 4; stroke-linecap: round; }
+.status { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 8px; font-size: 0.95rem; }
+.status b { font-family: var(--display); font-size: 1.15rem; letter-spacing: 0.02em; }
+.status.s-ok { background: var(--ok-soft); color: var(--ok); }
+.status.s-warn { background: var(--warn-soft); color: var(--warn); }
+.status.s-bad { background: var(--bad-soft); color: var(--bad); }
+.status .meter { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; margin-left: auto; white-space: nowrap; }
+.rules { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.rules li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; align-items: baseline; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); }
+.rules li.on { border-color: var(--druck); background: var(--druck-soft); }
+.rules li .badge { grid-row: span 2; }
+.rules li .r-name { font-weight: 700; }
+.rules li .r-text { font-size: 0.86rem; color: var(--muted); grid-column: 2; }
+.rules li.on .r-text { color: var(--ink); }
+.badge { font-size: 0.72rem; font-weight: 700; padding: 1px 8px; border-radius: 999px; flex: none; text-align: center; }
+.badge.ok { background: var(--ok-soft); color: var(--ok); }
+.badge.no { background: var(--bad-soft); color: var(--bad); }
+.badge.off { background: var(--bg); color: var(--muted); }
+.badge.act { background: var(--druck); color: var(--on-druck); }
+
+/* Gleichgewichtsregulation */
+.gg-card { border-color: var(--gg); }
+.gg-card h3 { color: var(--gg); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button { font-size: 0.85rem; padding: 4px 10px; }
+.chips button[aria-pressed="true"] { background: var(--gg); border-color: var(--gg); color: var(--panel); }
+.chips button:disabled { cursor: default; }
+.form-hint { font-size: 0.86rem; color: var(--muted); }
+.gg-svg { width: 100%; max-width: 420px; height: auto; display: block; }
+.flow { stroke: var(--gg); fill: none; stroke-linecap: round; }
+.node { fill: var(--gg-soft); stroke: var(--gg); stroke-width: 2; }
+.node-val { fill: var(--gg); font-family: var(--mono); font-weight: 700; font-size: 24px; }
+.node-sub { fill: var(--gg); font-family: var(--body); font-size: 11px; font-weight: 700; }
+.mods { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.mod { background: var(--bg); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.mod .m-name { font-size: 0.78rem; font-weight: 700; color: var(--druck); }
+.mod .m-bar { height: 6px; border-radius: 3px; background: var(--rail); overflow: hidden; }
+.mod .m-bar span { display: block; height: 100%; background: var(--druck); }
+.mod .m-text { font-size: 0.76rem; color: var(--muted); line-height: 1.25; }
+.hints { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.hints li { font-size: 0.88rem; padding: 6px 10px; border-radius: 6px; background: var(--warn-soft); color: var(--ink); border-left: 3px solid var(--warn); }
+
+/* Antwort und Rückmeldung */
+.work { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { font: inherit; font-weight: 600; font-size: 0.95rem; border-radius: 8px; padding: 9px 14px; cursor: pointer; border: 1px solid var(--line); background: transparent; color: var(--ink); }
+.btn.primary { background: var(--druck); border-color: var(--druck); color: var(--on-druck); }
+.feedback { display: flex; flex-direction: column; gap: 10px; }
+.score { font-family: var(--display); font-size: 1.5rem; font-weight: 700; }
+.checklist { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.checklist li { display: flex; gap: 8px; align-items: baseline; }
+.solution { background: var(--bg); border-radius: 8px; padding: 12px; font-size: 0.95rem; display: flex; flex-direction: column; gap: 6px; }
+.solution b { font-family: var(--display); font-size: 1.05rem; letter-spacing: 0.02em; }
+.muted { color: var(--muted); font-size: 0.92rem; }
+.toast { font-size: 0.85rem; color: var(--ok); min-height: 1.3em; }
+.source { font-size: 0.82rem; color: var(--muted); max-width: 90ch; }
+.source a { color: var(--info); }
+
+@media (max-width: 900px) {
+  .console, .console.mode-b, .work, .analysis { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  body { font-size: 16px; }
+  .track { height: 200px; }
+  .cap { width: 28px; }
+  .fader-name { font-size: 0.8rem; }
+  .fader-sub { font-size: 0.6rem; }
+  .readout { font-size: 0.95rem; }
+  .modes button { font-size: 0.95rem; padding: 8px 4px; }
+  .modes button small { display: none; }
+  .mods { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { .cap, .fill, .ghost { transition: none; } }
+</style>
+
+<style>
+.app-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.app-back { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); font-weight: 600; text-decoration: none; font-size: 0.95rem; }
+.app-back:active { background: var(--console); }
+.app-switch { color: var(--muted); font-size: 0.9rem; text-decoration: underline; text-underline-offset: 3px; min-height: 44px; display: inline-flex; align-items: center; }
+</style>
+<div class="wrap" lang="de">
+  <div class="app-bar"><a class="app-back" href="./">‹ Übersicht</a><a class="app-switch" href="mischpult.html">Zur Vollversion</a></div>
+  <header>
+    <span class="eyebrow">Sport · Qualifikationsphase · Koordination · Einstiegsversion</span>
+    <h1>KAR-Mischpult <span style="color:var(--gg)">Einstieg</span></h1>
+    <p class="lead">Der Koordinations-Anforderungs-Regler nach Neumaier beschreibt jede Bewegungsaufgabe über elf Regler: sechs Informationsanforderungen einschließlich der Gleichgewichtsregulation und fünf Druckbedingungen. Stell die Regler so ein, dass sie zur Situation passen. Ziehe die Regler oder nutze die Pfeiltasten.</p>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--info)"></i>Informationsanforderungen (Analysatoren)</span>
+      <span><i class="dot" style="background:var(--gg)"></i>Gleichgewichtsregulation</span>
+      <span><i class="dot" style="background:var(--druck)"></i>Druckbedingungen</span>
+      <span>Skala 0 keine · 5 mittel · 10 maximal</span>
+    </div>
+  </header>
+
+  <nav class="modes" role="tablist" aria-label="Arbeitsmodus">
+    <button role="tab" id="tab-a" data-mode="a" aria-selected="true">1 · Analysieren<small>Situation einschätzen</small></button>
+    <button role="tab" id="tab-b" data-mode="b" aria-selected="false">2 · Anpassen<small>Badminton-Gruppen</small></button>
+    <button role="tab" id="tab-c" data-mode="c" aria-selected="false">3 · Frei<small>eigene Sportart</small></button>
+  </nav>
+
+  <section class="task" id="task" aria-live="polite"></section>
+
+  <section class="console" id="console" aria-label="Mischpult">
+    <div class="group info" id="group-info">
+      <div class="group-head"><h3 id="info-title"><i class="dot" style="background:var(--info)"></i>Informationsanforderungen</h3><span class="scale">0–10</span></div>
+      <div class="faders" id="faders-info"></div>
+    </div>
+    <div class="group druck" id="group-druck">
+      <div class="group-head"><h3><i class="dot" style="background:var(--druck)"></i>Druckbedingungen</h3><span class="scale">0–10</span></div>
+      <div class="faders" id="faders-druck"></div>
+    </div>
+    <div class="explain" id="explain"></div>
+  </section>
+
+  <section class="analysis" aria-label="Auswertung">
+    <div class="card">
+      <div class="card-head"><h3>Profil der Bewegungsaufgabe</h3><span class="muted" id="radar-note"></span></div>
+      <div class="radar-wrap" id="radar"></div>
+      <div class="radar-legend" id="radar-legend"></div>
+    </div>
+    <div class="card gg-card">
+      <div class="card-head"><h3>Gleichgewichtsregulation</h3><span class="muted">integraler Prozess</span></div>
+      <p class="form-hint">Gleichgewicht ist im KAR keine isolierte Fähigkeit. Die Regulation verarbeitet laufend Informationen mehrerer Analysatoren und passt die Körperlage an die jeweilige Aufgabe an.</p>
+      <div><span class="small-label" id="form-label">Welche Gleichgewichtsform fordert die Aufgabe?</span>
+        <div class="chips" id="forms" role="group" aria-labelledby="form-label"></div></div>
+      <p class="form-hint" id="form-desc"></p>
+      <svg class="gg-svg" id="gg-svg" viewBox="0 0 320 200" role="img" aria-label="Zuflüsse der Analysatoren zur Gleichgewichtsregulation"></svg>
+      <span class="small-label">Druckbedingungen verändern die Regulation</span>
+      <div class="mods" id="mods"></div>
+      <ul class="hints" id="hints"></ul>
+    </div>
+  </section>
+
+
+  <section class="work">
+    <div class="card">
+      <label class="small" for="notes" id="notes-label">Begründe deine Einstellung</label>
+      <textarea id="notes" placeholder=""></textarea>
+      <div class="actions" id="actions"></div>
+      <div class="toast" id="toast" role="status"></div>
+    </div>
+    <div class="card feedback" id="feedback"></div>
+  </section>
+
+  <p class="source">Modell: Koordinations-Anforderungs-Regler (KAR) nach Neumaier u. a.; Druckbedingungen nach <a href="https://www.sportunterricht.de/lksport/karmodell-2.html" target="_blank" rel="noopener">sportunterricht.de</a>; elf Regler nach dem <a href="https://sportunterricht.eu/kar-reglermodell/" target="_blank" rel="noopener">KAR-Reglermodell auf sportunterricht.eu</a>. Einstiegsversion ohne Wechselwirkungen zwischen den Reglern. Die Werte zeigen Tendenzen, keine Messwerte. Die Expertenprofile sind begründete Vorschläge zur Diskussion. Eingaben bleiben nur in diesem Browser gespeichert.</p>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  function lvl(v) { return v === 0 ? "keine" : v <= 2 ? "sehr gering" : v <= 4 ? "gering" : v === 5 ? "mittel" : v <= 7 ? "hoch" : v <= 9 ? "sehr hoch" : "maximal"; }
+  function de(x) { return (Math.round(x * 10) / 10).toFixed(1).replace(".", ","); }
+
+  var FADERS = [
+    { id: "opt", group: "info", name: "optisch", sub: "Auge", short: "Auge", desc: "Informationen über das Sehen: Ball, Mitspieler, Gegner, Ziel, Raum, Gelände und Fixpunkte." },
+    { id: "aku", group: "info", name: "akustisch", sub: "Ohr", short: "Ohr", desc: "Informationen über das Hören: Zurufe, Pfiff, Ball- und Schlaggeräusch, Musik und Rhythmus." },
+    { id: "tak", group: "info", name: "taktil", sub: "Tastsinn", short: "Tastsinn", desc: "Informationen über die Haut: Ballkontakt, Griff am Gerät, Druckverteilung unter der Fußsohle." },
+    { id: "kin", group: "info", name: "kinästh.", full: "kinästhetisch", sub: "Muskelspannung, Körpergefühl", short: "Kinästh.", desc: "Informationen aus Muskeln, Sehnen und Gelenken: Muskelspannung, Gelenkstellung und Körpergefühl während der Bewegung." },
+    { id: "ves", group: "info", name: "vestibulär", sub: "Gleichgewichtsorgan", short: "Vestib.", desc: "Informationen aus dem Gleichgewichtsorgan im Innenohr: Lage des Kopfes im Raum, Drehungen und Beschleunigungen." },
+    { id: "gg", group: "info", gg: true, name: "Gleichgewicht", full: "Gleichgewichtsanforderung", sub: "Regulation", short: "Gleichg.", desc: "Gleichgewichtsregulation ist im KAR keine isolierte Fähigkeit, sondern ein integraler, dynamischer Prozess der Bewegungskoordination. Das Zentralnervensystem verarbeitet laufend vestibuläre, kinästhetische, taktile und optische Informationen und passt die Körperlage an die jeweilige Aufgabe an: Lage halten (statisch), in der Bewegung halten oder wiederherstellen (dynamisch) oder nach Drehungen stabilisieren. Der Regler beschreibt, wie stark die Aufgabe diese Regulation fordert." },
+    { id: "P", group: "druck", name: "Präzision", full: "Präzisionsdruck", short: "Präz.", desc: "Anforderungen an die Bewegungsgenauigkeit. Ergebnisgenauigkeit (z. B. Zielpräzision beim Wurf oder Zuspiel) und Verlaufsgenauigkeit (z. B. saubere Ausführung im Turnen)." },
+    { id: "Z", group: "druck", name: "Zeit", full: "Zeitdruck", short: "Zeit", desc: "Anforderungen an die verfügbare Bewegungszeit bzw. die Geschwindigkeit. Je schneller, desto eher leidet die Genauigkeit (Geschwindigkeits-Genauigkeits-Kompromiss). Auch schnelle Reaktionen gehören dazu." },
+    { id: "K", group: "druck", name: "Komplexität", full: "Komplexitätsdruck", short: "Kompl.", desc: "Anforderungen an gleichzeitige (Simultankoordination) und aufeinanderfolgende Bewegungsteile (Sukzessivkoordination) sowie an Umfang und Kopplung der beteiligten Muskelgruppen." },
+    { id: "S", group: "druck", name: "Situation", full: "Situationsdruck", short: "Situ.", desc: "Anforderungen an Variabilität (statisch oder dynamisch) und Komplexität der Situation, also den Umfang der Informationen, die gleichzeitig beachtet werden müssen." },
+    { id: "B", group: "druck", name: "Belastung", full: "Belastungsdruck", short: "Belast.", desc: "Anforderungen aus physischer (Kraft, Ausdauer, Ermüdung) und psychischer Belastung (Konzentration, Wille, Motivation, Angst, Wettkampfdruck)." }
+  ];
+  var ALL = FADERS.map(function (f) { return f.id; });
+  var ANALYZERS = ["opt", "aku", "tak", "kin", "ves", "gg"];
+  var DRUCK = ["P", "Z", "K", "S", "B"];
+  var byId = {}; FADERS.forEach(function (f) { byId[f.id] = f; });
+  function fullName(id) { return byId[id].full || byId[id].name; }
+
+  var FORMS = [
+    { id: "statisch", name: "statisch", desc: "Statisch: eine Körperlage halten, z. B. Standwaage, Handstand, Zielen im Stand." },
+    { id: "dynamisch", name: "dynamisch", desc: "Dynamisch: das Gleichgewicht in der Bewegung halten oder nach Störungen wiederherstellen, z. B. Slackline, Skifahren, Zweikampf." },
+    { id: "rotation", name: "nach Rotation", desc: "Nach Rotationen: den Körper nach Drehungen stabilisieren, z. B. Landung nach Salto oder Schraube, Abrollen." }
+  ];
+  var formById = {}; FORMS.forEach(function (f) { formById[f.id] = f; });
+
+  var SCEN = [
+    { id: "freiwurf", title: "Basketball: Freiwurf", text: "Basketball, letzte Spielminute, eigenes Team liegt einen Punkt zurück. Du stehst an der Freiwurflinie und hast zwei Freiwürfe.",
+      expert: { opt: 8, aku: 1, tak: 6, kin: 8, ves: 2, gg: 3, P: 10, Z: 3, K: 4, S: 1, B: 8 }, forms: ["statisch"],
+      why: "Präzision maximal (10): Der Ball muss in den Korb. Zeitdruck gering (3), es gibt fünf Sekunden und keinen Gegner. Komplexität gering (4), die Wurfbewegung ist eingeschliffen. Situation statisch (1). Belastung sehr hoch (8): Ermüdung am Spielende und großer psychischer Druck. Optisch (Korb) und kinästhetisch (Wurfgefühl) sind entscheidend. Gleichgewicht gering (3, statisch): stabiler Stand auf beiden Beinen." },
+    { id: "smash", title: "Badminton: Smash-Abwehr", text: "Badminton-Einzel. Die Gegnerin schlägt einen Smash auf deine Rückhandseite. Du willst den Ball kontrolliert ins Feld zurückspielen.",
+      expert: { opt: 10, aku: 4, tak: 4, kin: 6, ves: 6, gg: 7, P: 8, Z: 10, K: 6, S: 8, B: 6 }, forms: ["dynamisch"],
+      why: "Zeitdruck maximal (10): Der Federball ist sehr schnell. Präzision sehr hoch (8), Situation sehr hoch (8), Richtung und Tempo sind schwer vorhersehbar. Komplexität hoch (6): Ausfallschritt und Schlag werden gekoppelt. Optisch maximal (10), akustisch hilft das Schlaggeräusch (4). Gleichgewicht hoch (7, dynamisch): Im weiten Ausfallschritt muss die Balance gehalten und für den Rückweg sofort wiederhergestellt werden." },
+    { id: "fussball", title: "Fußball: Ballannahme unter Druck", text: "Fußball, 11 gegen 11. Du bekommst im Mittelfeld einen flachen Pass, ein Gegenspieler läuft von hinten an. Du nimmst den Ball an und spielst sofort weiter.",
+      expert: { opt: 10, aku: 6, tak: 8, kin: 8, ves: 5, gg: 7, P: 7, Z: 9, K: 7, S: 10, B: 7 }, forms: ["dynamisch"],
+      why: "Situationsdruck maximal (10), Zeitdruck sehr hoch (9): viele Informationen, wenig Zeit. Komplexität hoch (7): Annahme, Drehung und Pass werden verkettet. Präzision hoch (7), Belastung hoch (7) durch Zweikampf und Ermüdung. Optisch maximal, akustisch durch Zurufe (6), taktil beim Ballkontakt (8). Gleichgewicht hoch (7, dynamisch): Drehung mit Ball und Körperkontakt stören die Balance." },
+    { id: "handstand", title: "Turnen: Handstand-Abrollen", text: "Gerätturnen am Boden. Du turnst einen Handstand, hältst ihn kurz und rollst dann kontrolliert vorwärts ab.",
+      expert: { opt: 3, aku: 0, tak: 6, kin: 10, ves: 9, gg: 9, P: 8, Z: 1, K: 6, S: 1, B: 4 }, forms: ["statisch", "rotation"],
+      why: "Präzision sehr hoch (8), hier als Verlaufsgenauigkeit. Kaum Zeitdruck (1). Komplexität hoch (6): Handstand und Abrollen werden verkettet. Situation statisch (1). Belastung gering (4), vor allem psychisch (Mut). Optisch kaum (3), im Handstand sieht man wenig. Kinästhetisch maximal (10), vestibulär sehr hoch (9). Gleichgewicht sehr hoch (9): im Handstand statisch halten, beim Abrollen nach der Rotation wieder stabilisieren." },
+    { id: "ski", title: "Skifahren: unbekanntes Gelände", text: "Skifahren bei Nebel auf einer unbekannten, buckeligen Piste am Ende eines langen Skitages.",
+      expert: { opt: 9, aku: 1, tak: 6, kin: 8, ves: 9, gg: 10, P: 5, Z: 6, K: 6, S: 10, B: 8 }, forms: ["dynamisch"],
+      why: "Situationsdruck maximal (10): unvorhersehbares Gelände und schlechte Sicht. Belastung sehr hoch (8) durch Ermüdung, Kälte und Unsicherheit. Zeit- und Komplexitätsdruck hoch (6), Präzision mittel (5). Optisch sehr wichtig (9), obwohl die Sicht schlecht ist. Vestibulär (9) und kinästhetisch (8) zentral, taktil über die Fußsohlen (6). Gleichgewicht maximal (10, dynamisch): Buckel stören die Balance ständig, sie muss laufend wiederhergestellt werden." },
+    { id: "tt", title: "Tischtennis: Aufschlag", text: "Tischtennis-Match. Du spielst einen kurzen Unterschnitt-Aufschlag, der zweimal auf der gegnerischen Hälfte aufspringen soll.",
+      expert: { opt: 6, aku: 2, tak: 8, kin: 9, ves: 1, gg: 2, P: 10, Z: 3, K: 8, S: 1, B: 3 }, forms: ["statisch"],
+      why: "Präzision maximal (10): Platzierung, Länge und Netzhöhe müssen stimmen. Komplexität sehr hoch (8): Ballwurf, Schlägerhaltung und Schnitt laufen fein abgestimmt ab. Situation (1) und Zeit (3) gering, der Aufschlag ist selbst bestimmt. Kinästhetisch (9) und taktil (8, Schlägergefühl) sind die wichtigsten Informationsquellen. Gleichgewicht sehr gering (2, statisch): sicherer Stand." },
+    { id: "slackline", title: "Slackline: Gehen", text: "Du gehst langsam über eine 5 m lange Slackline in Kniehöhe, ohne Hilfestellung.",
+      expert: { opt: 6, aku: 0, tak: 8, kin: 9, ves: 9, gg: 10, P: 7, Z: 2, K: 5, S: 4, B: 5 }, forms: ["dynamisch"],
+      why: "Gleichgewicht maximal (10, dynamisch): Die schwingende Leine verlangt ständige Ausgleichsbewegungen. Vestibulär (9), kinästhetisch (9) und taktil über die Fußsohle (8) liefern die nötigen Informationen. Optisch hoch (6): Der Blick auf einen festen Punkt am Ende hilft. Präzision hoch (7): Fuß genau auf die Leine setzen. Zeitdruck gering (2), du bestimmst das Tempo. Situation gering (4): Die Leine reagiert auf jede Bewegung. Belastung mittel (5), vor allem Konzentration." },
+    { id: "standwaage", title: "Yoga: Standwaage", text: "Du hältst eine Standwaage auf dem rechten Bein 20 Sekunden lang ruhig, Arme nach vorn gestreckt.",
+      expert: { opt: 5, aku: 0, tak: 7, kin: 9, ves: 6, gg: 9, P: 7, Z: 0, K: 3, S: 0, B: 4 }, forms: ["statisch"],
+      why: "Gleichgewicht sehr hoch (9, statisch): auf einem Bein die Lage halten. Kinästhetisch sehr hoch (9) für Körperspannung und Gelenkstellung, taktil über die Fußsohle (7), vestibulär hoch (6). Optisch mittel (5): Ein Fixpunkt stabilisiert. Präzision hoch (7, Verlaufsgenauigkeit). Kein Zeit- (0) und kein Situationsdruck (0). Komplexität gering (3). Belastung gering (4): Haltekraft und Konzentration." }
+  ];
+
+  var BADMINTON_BASE = "Grundübung für alle Gruppen: A spielt B hoch in die Hinterfeldmitte zu. B steht dort und spielt einen Clear zurück. Nach 10 Clears wird gewechselt.";
+  var TASKS = [
+    { id: "g1", focus: ["Z"], ana: "optisch ↑, vestibulär ↑, kinästhetisch ↑ (schnellerer Ball, schnelle Richtungswechsel)", title: "Gruppe 1 · Zeit", start: { opt: 7, aku: 2, tak: 4, kin: 6, ves: 3, gg: 4, P: 6, Z: 4, K: 4, S: 2, B: 2 }, form: "dynamisch", base: BADMINTON_BASE,
+      goal: "Erhöht den Zeitdruck. Der Präzisionsdruck bleibt gleich.",
+      checks: [ function (v) { return [v.Z > 4, "Zeitdruck erhöht (über 4)"]; }, function (v) { return [v.P === 6, "Präzisionsdruck unverändert (6)"]; } ],
+      idea: "B läuft nach jedem Clear zur Mittellinie zurück und berührt sie mit dem Schläger. A spielt schneller und etwas flacher zu. Die Zielvorgabe für den Clear bleibt gleich." },
+    { id: "g2", focus: ["P"], ana: "optisch ↑, kinästhetisch ↑ (Zielzone fixieren, Krafteinsatz fein dosieren)", title: "Gruppe 2 · Präzision", start: { opt: 7, aku: 2, tak: 4, kin: 6, ves: 3, gg: 4, P: 6, Z: 4, K: 4, S: 2, B: 2 }, form: "dynamisch", base: BADMINTON_BASE,
+      goal: "Erhöht den Präzisionsdruck. Der Zeitdruck bleibt gleich.",
+      checks: [ function (v) { return [v.P > 6, "Präzisionsdruck erhöht (über 6)"]; }, function (v) { return [v.Z === 4, "Zeitdruck unverändert (4)"]; } ],
+      idea: "Im hinteren Feld liegt eine Zielzone, z. B. ein Gymnastikreifen oder eine kleine Matte. Nur Treffer in der Zone zählen als Punkt. Zuspiel und Tempo bleiben wie in der Grundübung." },
+    { id: "g3", focus: ["S"], ana: "optisch ↑↑, akustisch ↑ (Zuspiel früh lesen, Schlaggeräusch verrät die Länge)", title: "Gruppe 3 · Situation", start: { opt: 7, aku: 2, tak: 4, kin: 6, ves: 3, gg: 4, P: 6, Z: 4, K: 4, S: 2, B: 2 }, form: "dynamisch", base: BADMINTON_BASE,
+      goal: "Erhöht den Situationsdruck.",
+      checks: [ function (v) { return [v.S > 2, "Situationsdruck erhöht (über 2)"]; } ],
+      idea: "A variiert Länge und Seite der Zuspiele, ohne sie anzukündigen. B wartet in der Feldmitte und weiß vorher nicht, wohin er laufen muss." },
+    { id: "g4", focus: ["K"], ana: "kinästhetisch ↑, vestibulär ↑ (Bewegungsteile koppeln, Umsprung)", title: "Gruppe 4 · Komplexität", start: { opt: 7, aku: 2, tak: 4, kin: 6, ves: 3, gg: 4, P: 6, Z: 4, K: 4, S: 2, B: 2 }, form: "dynamisch", base: BADMINTON_BASE,
+      goal: "Erhöht den Komplexitätsdruck.",
+      checks: [ function (v) { return [v.K > 4, "Komplexitätsdruck erhöht (über 4)"]; } ],
+      idea: "B spielt eine feste Schlagfolge Clear – Drop – Clear. Oder B schlägt den Clear aus dem Umsprung (Scherensprung): Absprung, Schlag und Landung müssen gekoppelt werden." },
+    { id: "g5", focus: ["gg"], ana: "vestibulär ↑↑, kinästhetisch ↑, taktil ↑ (Drehung, Körperspannung, Druck unter der Fußsohle)", title: "Gruppe 5 · Gleichgewicht", start: { opt: 7, aku: 2, tak: 4, kin: 6, ves: 3, gg: 4, P: 6, Z: 4, K: 4, S: 2, B: 2 }, form: "dynamisch", base: BADMINTON_BASE,
+      goal: "Erhöht die Gleichgewichtsanforderung.",
+      checks: [ function (v) { return [v.gg > 4, "Gleichgewichtsanforderung erhöht (über 4)"]; } ],
+      idea: "B dreht sich vor jedem Schlag einmal um die Längsachse. Oder B stabilisiert sich nach dem Clear zwei Sekunden im Einbeinstand. Oder B schlägt aus dem weiten Ausfallschritt. Achtet auf genug Abstand zu den anderen Feldern." },
+    { id: "g6", focus: ["B"], ana: "kinästhetisch ↑ (Körpergefühl bei Ermüdung schwerer zu nutzen)", title: "Gruppe 6 · Belastung", start: { opt: 7, aku: 2, tak: 4, kin: 6, ves: 3, gg: 4, P: 6, Z: 4, K: 4, S: 2, B: 2 }, form: "dynamisch", base: BADMINTON_BASE,
+      goal: "Erhöht den Belastungsdruck, physisch und psychisch.",
+      checks: [ function (v) { return [v.B > 2, "Belastungsdruck erhöht (über 2)"]; } ],
+      idea: "Vor jeder Serie 30 Sekunden Hampelmänner, dann 15 Clears ohne Pause (physisch). Dazu ein kleiner Wettkampf: Jeder Fehler kostet einen Punkt, die anderen schauen zu (psychisch)." },
+    { id: "g7", focus: ["P", "Z", "K"], ana: "optisch ↓, vestibulär ↓ (langsamer, vorhersehbarer Ball, kein Laufweg)", title: "Gruppe 7 · Vereinfachen", start: { opt: 7, aku: 2, tak: 4, kin: 6, ves: 3, gg: 4, P: 6, Z: 4, K: 4, S: 2, B: 2 }, form: "dynamisch", base: BADMINTON_BASE,
+      goal: "Vereinfacht die Übung für Anfängerinnen und Anfänger: Präzision, Zeit und Komplexität sinken, Situation und Belastung steigen nicht.",
+      checks: [ function (v) { return [v.P < 6, "Präzisionsdruck gesenkt (unter 6)"]; }, function (v) { return [v.Z < 4, "Zeitdruck gesenkt (unter 4)"]; }, function (v) { return [v.K < 4, "Komplexitätsdruck gesenkt (unter 4)"]; }, function (v) { return [v.S <= 2 && v.B <= 2, "Situation und Belastung nicht höher"]; } ],
+      idea: "A wirft den Ball von Hand hoch zu, statt ihn zu schlagen. Die Zielzone ist das ganze hintere Halbfeld. B steht schon in Schlagposition, es gibt keinen Laufweg." }
+  ];
+
+  /* Einstiegsversion: keine Wechselwirkungen, effektiv = eingestellt */
+  function compute(v) {
+    var e = {}; ALL.forEach(function (id) { e[id] = v[id]; });
+    return { e: e, rules: [], mean: 0, count: 0, status: "ok", n: 0 };
+  }
+
+  var KEY = "kar-mischpult-einstieg-v2";
+  var state = { mode: "a", scen: 0, task: 0, vals: {}, forms: {}, notes: {}, done: {}, sport: "", meas: {} };
+  try { var saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved && typeof saved === "object") { for (var k in saved) state[k] = saved[k]; } } catch (e) {}
+  if (state.scen >= SCEN.length) state.scen = 0; if (state.task >= TASKS.length) state.task = 0;
+  if (!state.meas || typeof state.meas !== "object") state.meas = {};
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  function ctxKey() { return state.mode === "a" ? "a:" + SCEN[state.scen].id : state.mode === "b" ? "b:" + TASKS[state.task].id : "c"; }
+  function current() {
+    var k = ctxKey();
+    if (!state.vals[k]) {
+      var v = {};
+      ALL.forEach(function (id) { v[id] = 5; });
+      if (state.mode === "b") { ANALYZERS.forEach(function (id) { v[id] = 3; }); var s = TASKS[state.task].start; for (var id in s) v[id] = s[id]; }
+      state.vals[k] = v;
+    }
+    return state.vals[k];
+  }
+  function currentForm() { return state.mode === "b" ? TASKS[state.task].form : (state.forms[ctxKey()] || null); }
+  function visibleIds() { return ALL; }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var faderEls = {};
+  var activeId = "gg";
+
+  function buildFaders() {
+    FADERS.forEach(function (f) {
+      var col = document.createElement("div"); col.className = "fader" + (f.gg ? " gg-fader" : "");
+      var ticks = "";
+      for (var i = 0; i <= 10; i++) ticks += '<div class="tickmark' + (i % 5 === 0 ? " major" : "") + '" style="bottom:calc(' + (i / 10) + ' * (100% - 28px) + 14px)"></div>';
+      col.innerHTML = '<div class="focus-tag">Auftrag</div><div class="readout" aria-hidden="true">5</div>' +
+        '<div class="track" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="10" aria-label="' + fullName(f.id) + '">' +
+        '<div class="rail"></div><div class="ghost"></div><div class="fill"></div>' + ticks +
+        '<div class="marker" hidden><span></span></div><div class="cap"></div></div>' +
+        '<div class="eff"></div><div class="fader-name">' + f.name + '</div><div class="fader-sub">' + (f.sub || "") + '</div><div class="level"></div><div class="deviation"></div>';
+      $(f.group === "info" ? "faders-info" : "faders-druck").appendChild(col);
+      var track = col.querySelector(".track");
+      faderEls[f.id] = { col: col, track: track, readout: col.querySelector(".readout"), level: col.querySelector(".level"), marker: col.querySelector(".marker"), dev: col.querySelector(".deviation"), eff: col.querySelector(".eff") };
+      function fromY(clientY) {
+        var r = track.getBoundingClientRect();
+        var pos = 1 - (clientY - r.top - 14) / (r.height - 28);
+        set(f.id, Math.round(10 * Math.max(0, Math.min(1, pos))));
+      }
+      track.addEventListener("pointerdown", function (e) { e.preventDefault(); track.focus(); track.setPointerCapture(e.pointerId); select(f.id); fromY(e.clientY); });
+      track.addEventListener("pointermove", function (e) { if (track.hasPointerCapture && track.hasPointerCapture(e.pointerId)) fromY(e.clientY); });
+      track.addEventListener("focus", function () { select(f.id); });
+      track.addEventListener("keydown", function (e) {
+        var v = current()[f.id], n = v;
+        if (e.key === "ArrowUp" || e.key === "ArrowRight") n = v + 1;
+        else if (e.key === "ArrowDown" || e.key === "ArrowLeft") n = v - 1;
+        else if (e.key === "PageUp") n = v + 2; else if (e.key === "PageDown") n = v - 2;
+        else if (e.key === "Home") n = 0; else if (e.key === "End") n = 10; else return;
+        e.preventDefault(); set(f.id, Math.max(0, Math.min(10, n)));
+      });
+    });
+  }
+
+  function set(id, v) {
+    var cur = current();
+    if (cur[id] === v) return;
+    cur[id] = v; save(); paintAll(); renderAnalysis();
+    if (state.done[ctxKey()] || state.mode === "c") renderFeedback();
+  }
+  function select(id) {
+    activeId = id;
+    FADERS.forEach(function (f) { faderEls[f.id].col.classList.toggle("active", f.id === id); });
+    var f = byId[id], cls = f.gg ? "gg" : f.group;
+    $("explain").innerHTML = '<span class="tag ' + cls + '">' + fullName(id) + '</span><p>' + f.desc + '</p>';
+  }
+
+  function paintAll() {
+    var v = current(), c = compute(v), k = ctxKey();
+    FADERS.forEach(function (f) {
+      var id = f.id, el = faderEls[id], val = v[id], ev = c.e[id];
+      el.col.classList.toggle("focus", state.mode === "b" && TASKS[state.task].focus.indexOf(id) >= 0);
+      el.track.style.setProperty("--pos", val / 10);
+      el.track.style.setProperty("--epos", ev > val + 0.05 ? ev / 10 : 0);
+      el.track.setAttribute("aria-valuenow", val);
+      el.track.setAttribute("aria-valuetext", val + " – " + lvl(val) + (ev > val + 0.05 ? ", effektiv " + de(ev) : ""));
+      el.readout.textContent = val; el.level.textContent = lvl(val);
+      el.eff.textContent = ev > val + 0.05 ? "eff. " + de(ev) : "";
+      var ref = null, label = "";
+      if (state.mode === "a" && state.done[k]) { ref = SCEN[state.scen].expert[id]; label = "E"; }
+      if (state.mode === "b" && TASKS[state.task].start[id] != null) { ref = TASKS[state.task].start[id]; label = "A"; }
+      if (ref != null) { el.marker.hidden = false; el.marker.style.setProperty("--mpos", ref / 10); el.marker.querySelector("span").textContent = label; }
+      else el.marker.hidden = true;
+      el.dev.className = "deviation"; el.dev.textContent = "";
+      if (state.mode === "a" && state.done[k]) {
+        var d = Math.abs(val - ref);
+        el.dev.className = "deviation dev-" + (d <= 1 ? 0 : d === 2 ? 1 : 2);
+        el.dev.textContent = d === 0 ? "passt" : "±" + d;
+      }
+    });
+  }
+
+  function radarSVG(ids, series) {
+    var cx = 210, cy = 200, R = 140, n = ids.length, out = [];
+    function pt(i, val) { var a = -Math.PI / 2 + 2 * Math.PI * i / n; return [cx + R * val / 10 * Math.cos(a), cy + R * val / 10 * Math.sin(a)]; }
+    [2, 4, 6, 8, 10].forEach(function (r) {
+      var p = ids.map(function (_, i) { return pt(i, r).map(function (x) { return x.toFixed(1); }).join(","); }).join(" ");
+      out.push('<polygon class="svg-ring" points="' + p + '"/>');
+    });
+    ids.forEach(function (id, i) {
+      var e = pt(i, 10); out.push('<line class="svg-axis" x1="' + cx + '" y1="' + cy + '" x2="' + e[0].toFixed(1) + '" y2="' + e[1].toFixed(1) + '"/>');
+      var l = pt(i, 11.6), a = -Math.PI / 2 + 2 * Math.PI * i / n, cos = Math.cos(a);
+      var anchor = Math.abs(cos) < 0.2 ? "middle" : cos > 0 ? "start" : "end";
+      var f = byId[id];
+      out.push('<text class="svg-label' + (f.gg ? " strong" : "") + '" x="' + l[0].toFixed(1) + '" y="' + (l[1] + 4).toFixed(1) + '" text-anchor="' + anchor + '"' + (f.gg ? ' style="fill:var(--gg)"' : "") + '>' + f.short + '</text>');
+    });
+    out.push('<text class="svg-label" x="' + (cx + 4) + '" y="' + (cy - R / 2 - 3) + '">5</text><text class="svg-label" x="' + (cx + 4) + '" y="' + (cy - R - 3) + '">10</text>');
+    series.forEach(function (s) {
+      var p = ids.map(function (id, i) { return pt(i, s.vals[id]).map(function (x) { return x.toFixed(1); }).join(","); }).join(" ");
+      out.push('<polygon class="' + s.cls + '" points="' + p + '"/>');
+    });
+    return '<svg viewBox="0 0 420 400" role="img" aria-label="Netzdiagramm der Reglerwerte">' + out.join("") + '</svg>';
+  }
+
+  function renderAnalysis() {
+    var v = current(), c = compute(v), ids = visibleIds(), k = ctxKey();
+    var series = [{ cls: "poly-set", vals: v }];
+    var legend = '<span><i style="border-top-color:var(--ink)"></i>deine Einstellung</span>';
+    if (state.mode === "a" && state.done[k]) { series.push({ cls: "poly-exp", vals: SCEN[state.scen].expert }); legend += '<span><i style="border-top-color:var(--gg);border-top-style:dotted"></i>Expertenprofil</span>'; }
+    if (state.mode === "b") { series.push({ cls: "poly-exp", vals: TASKS[state.task].start }); legend += '<span><i style="border-top-color:var(--gg);border-top-style:dotted"></i>Ausgangsübung</span>'; }
+    $("radar").innerHTML = radarSVG(ids, series);
+    $("radar-legend").innerHTML = legend;
+    $("radar-note").textContent = "alle 11 Regler";
+    renderGG(v, c);
+  }
+
+  function renderGG(v, c) {
+    var form = currentForm(), k = ctxKey();
+    $("forms").innerHTML = FORMS.map(function (f) {
+      return '<button data-f="' + f.id + '" aria-pressed="' + (form === f.id) + '"' + (state.mode === "b" ? " disabled" : "") + '>' + f.name + '</button>';
+    }).join("");
+    Array.prototype.forEach.call($("forms").querySelectorAll("button"), function (b) {
+      b.addEventListener("click", function () { state.forms[k] = b.getAttribute("data-f"); save(); renderGG(current(), compute(current())); if (state.done[k] || state.mode === "c") renderFeedback(); });
+    });
+    $("form-desc").textContent = form ? formById[form].desc : "Noch keine Gleichgewichtsform gewählt.";
+    var inputs = [["opt", "optisch"], ["tak", "taktil"], ["kin", "kinästhetisch"], ["ves", "vestibulär"]];
+    var ys = [30, 76, 122, 168], nx = 250, ny = 100, out = [];
+    inputs.forEach(function (inp, i) {
+      var val = v[inp[0]], y = ys[i];
+      out.push('<path class="flow" d="M118 ' + y + ' C 175 ' + y + ', 190 ' + ny + ', ' + (nx - 44) + ' ' + ny + '" stroke-width="' + (1 + val * 0.9).toFixed(1) + '" stroke-opacity="' + (0.25 + val * 0.065).toFixed(2) + '"/>');
+      out.push('<text class="svg-label" x="4" y="' + (y + 4) + '">' + inp[1] + '</text>');
+      out.push('<text class="svg-label strong" x="112" y="' + (y + 4) + '" text-anchor="end">' + val + '</text>');
+    });
+    out.push('<circle class="node" cx="' + nx + '" cy="' + ny + '" r="44"/>');
+    out.push('<text class="node-val" x="' + nx + '" y="' + (ny + 6) + '" text-anchor="middle">' + de(c.e.gg).replace(",0", "") + '</text>');
+    out.push('<text class="node-sub" x="' + nx + '" y="' + (ny + 24) + '" text-anchor="middle">' + (c.e.gg > v.gg + 0.05 ? "effektiv" : "Gleichgew.") + '</text>');
+    $("gg-svg").innerHTML = out.join("");
+    var mods = [
+      ["Z", "Zeit", v.Z >= 6 ? "Wenig Zeit für Ausgleichsbewegungen: Die Regulation muss vorausschauend erfolgen." : "Genug Zeit für Korrekturen."],
+      ["S", "Situation", v.S >= 6 ? "Unvorhersehbare Störungen (Gegner, Gelände, Unterlage) verlangen reaktive Regulation." : "Kaum Störungen von außen."],
+      ["B", "Belastung", v.B >= 7 ? "Ermüdung und Stress verschlechtern die Regulation." : "Belastung beeinträchtigt die Regulation kaum."]
+    ];
+    $("mods").innerHTML = mods.map(function (m) {
+      return '<div class="mod"><span class="m-name">' + m[1] + ' ' + v[m[0]] + '</span><div class="m-bar"><span style="width:' + v[m[0]] * 10 + '%"></span></div><span class="m-text">' + m[2] + '</span></div>';
+    }).join("");
+    var hints = [];
+    {
+      if (v.gg >= 7 && Math.max(v.ves, v.kin) <= 4) hints.push("Hohe Gleichgewichtsanforderung, aber vestibuläre und kinästhetische Informationen sind gering. Gleichgewicht wird vor allem über diese Analysatoren reguliert. Passt deine Einstellung?");
+      if (v.gg <= 3 && v.ves >= 8) hints.push("Viel vestibuläre Information bei geringer Gleichgewichtsanforderung. Das passt nur, wenn der Körper trotz Drehungen sicher abgestützt ist. Begründe.");
+      if (v.gg >= 7 && v.opt <= 2) hints.push("Kaum optische Kontrolle bei hoher Gleichgewichtsanforderung: Die Regulation muss über vestibuläre, kinästhetische und taktile Informationen laufen, z. B. mit geschlossenen Augen.");
+      if (form === "rotation" && v.ves <= 4) hints.push("Gleichgewicht nach Rotationen ohne nennenswerte vestibuläre Information? Drehungen werden über das Gleichgewichtsorgan registriert.");
+      if (form === "statisch" && v.S >= 7) hints.push("Statisches Gleichgewicht bei hohem Situationsdruck ist ungewöhnlich. Ist die Gleichgewichtsform eher dynamisch?");
+    }
+    $("hints").innerHTML = hints.map(function (h) { return "<li>" + h + "</li>"; }).join("");
+  }
+
+  function renderTask() {
+    var t = $("task"), html = "";
+    if (state.mode === "a") {
+      var s = SCEN[state.scen];
+      html += '<span class="eyebrow">Aufgabe 1 · Bewegungssituation analysieren</span>';
+      html += '<div class="pick" role="group" aria-label="Situation wählen">' + SCEN.map(function (x, i) {
+        return '<button data-i="' + i + '" aria-pressed="' + (i === state.scen) + '">' + x.title + (state.done["a:" + x.id] ? ' <span class="tick">✓</span>' : "") + '</button>'; }).join("") + '</div>';
+      html += '<h2>' + s.title + '</h2><p class="situation">' + s.text + '</p>';
+      html += '<p class="muted">Stelle alle elf Regler von 0 bis 10 ein und wähle die Gleichgewichtsform. Begründe die drei höchsten Werte und die Gleichgewichtsanforderung. Vergleiche danach mit dem Expertenprofil.</p>';
+    } else if (state.mode === "b") {
+      var tk = TASKS[state.task], m = state.meas["b:" + tk.id] || {};
+      html += '<span class="eyebrow">Aufgabe 2 · Badminton: den Clear gezielt verändern</span>';
+      html += '<div class="pick" role="group" aria-label="Gruppe wählen">' + TASKS.map(function (x, i) {
+        return '<button data-i="' + i + '" aria-pressed="' + (i === state.task) + '">' + x.title + (state.done["b:" + x.id] && allOk(x) ? ' <span class="tick">✓</span>' : "") + '</button>'; }).join("") + '</div>';
+      html += '<h2>' + tk.title + '</h2><p class="situation">' + tk.base + '</p><p class="goal"><b>Euer Auftrag:</b> ' + tk.goal + '</p><div class="focus-row"><span class="small-label">Fokus im Mischpult:</span>' + tk.focus.map(function (id) { return '<span class="focus-chip' + (id === "gg" ? " gg" : "") + '">' + fullName(id) + '</span>'; }).join("") + '</div>';
+      html += '<ol class="steps"><li>Spielt die Grundübung. Zählt 10 Clears von B: Wie viele landen im hinteren Drittel des Feldes (mit Hütchen markieren)?</li>' +
+        '<li>Entwickelt eine Variation, die euren Auftrag erfüllt, und probiert sie in der Halle aus.</li>' +
+        '<li>Zählt wieder 10 Clears mit eurer Variation.</li>' +
+        '<li>Stellt alle Regler so ein, wie eure Variation die Anforderungen verändert – auch die Informationsanforderungen – und lasst sie prüfen. Der farbig markierte Regler ist euer Auftrag, die gestrichelte Linie A zeigt die Grundübung.</li>' +
+        '<li>Beschreibt eure Variation und begründet die Reglerstellung.</li></ol>';
+      html += '<div class="meas"><span class="small-label">Treffer im hinteren Drittel (von 10)</span><div class="meas-row">' +
+        '<label for="m-pre">Grundübung <input type="number" id="m-pre" min="0" max="10" inputmode="numeric" value="' + (m.pre != null ? m.pre : "") + '"></label>' +
+        '<label for="m-post">Mit Variation <input type="number" id="m-post" min="0" max="10" inputmode="numeric" value="' + (m.post != null ? m.post : "") + '"></label></div></div>';
+    } else {
+      html += '<span class="eyebrow">Aufgabe 3 · Eigene Anwendungssituation</span><h2>Freies Mischpult</h2>';
+      html += '<div class="free-input"><label class="small" for="sport">Sportart und Situation</label><input type="text" id="sport" placeholder="z. B. Handball: Sprungwurf über den Block" value=""></div>';
+      html += '<p class="muted">Stelle das Profil für eine Situation aus deiner Sportart ein. Plane danach eine Übung, die einen Regler gezielt erhöht und einen anderen senkt.</p>';
+    }
+    t.innerHTML = html;
+    Array.prototype.forEach.call(t.querySelectorAll(".pick button"), function (b) {
+      b.addEventListener("click", function () { var i = +b.getAttribute("data-i"); if (state.mode === "a") state.scen = i; else { state.task = i; activeId = TASKS[i].focus[0]; } save(); renderAll(); });
+    });
+    ["pre", "post"].forEach(function (key) {
+      var inp = $("m-" + key); if (!inp) return;
+      inp.addEventListener("input", function () {
+        var k = "b:" + TASKS[state.task].id, n = parseInt(inp.value, 10);
+        state.meas[k] = state.meas[k] || {};
+        if (isNaN(n)) delete state.meas[k][key]; else state.meas[k][key] = Math.max(0, Math.min(10, n));
+        save(); renderFeedback();
+      });
+    });
+    var sp = $("sport");
+    if (sp) { sp.value = state.sport || ""; sp.addEventListener("input", function () { state.sport = sp.value; save(); }); }
+  }
+
+  function allOk(tk) { var v = state.vals["b:" + tk.id]; if (!v) return false; return tk.checks.every(function (c) { return c(v)[0]; }); }
+
+  function renderFeedback() {
+    var fb = $("feedback"), k = ctxKey(), v = current(), c = compute(v), html = "";
+    if (state.mode === "a") {
+      var s = SCEN[state.scen];
+      if (!state.done[k]) {
+        html = '<h3>Rückmeldung</h3><p class="muted">Wenn alle Regler stehen, die Gleichgewichtsform gewählt und deine Begründung fertig ist, vergleiche mit dem Expertenprofil. Abweichungen um ein bis zwei Stufen sind normal und gut diskutierbar.</p>';
+      } else {
+        var hit = 0, exact = 0, big = [];
+        ALL.forEach(function (id) { var d = Math.abs(v[id] - s.expert[id]); if (d <= 2) hit++; if (d <= 1) exact++; if (d >= 3) big.push(fullName(id)); });
+        var form = currentForm(), formOk = form && s.forms.indexOf(form) >= 0;
+        html = '<h3>Vergleich mit dem Expertenprofil</h3><p class="score">' + hit + ' von 11 im Toleranzbereich (±2)</p>';
+        html += '<p class="muted">' + exact + ' Regler fast genau getroffen (±1). ' + (big.length ? 'Deutliche Abweichung bei: ' + big.join(", ") + '. Prüfe dort deine Begründung.' : 'Keine deutlichen Abweichungen.') + '</p>';
+        html += '<ul class="checklist"><li><span class="badge ' + (formOk ? "ok" : "no") + '">' + (formOk ? "passt" : form ? "anders" : "fehlt") + '</span>Gleichgewichtsform: ' + (form ? formById[form].name : "nicht gewählt") + ' · Expertenprofil: ' + s.forms.map(function (f) { return formById[f].name; }).join(" und ") + '</li></ul>';
+        html += '<div class="solution"><b>Begründung des Expertenprofils</b><p>' + s.why + '</p></div>';
+      }
+    } else if (state.mode === "b") {
+      var tk = TASKS[state.task];
+      if (!state.done[k]) {
+        html = '<h3>Rückmeldung</h3><p class="muted">Prüft eure Reglerstellung, sobald ihr die Variation in der Halle ausprobiert und beschrieben habt.</p>';
+      } else {
+        var res = tk.checks.map(function (fn) { return fn(v); });
+        var ok = res.every(function (r) { return r[0]; });
+        html = '<h3>Prüfung der Reglerstellung</h3><ul class="checklist">' + res.map(function (r) { return '<li><span class="badge ' + (r[0] ? "ok" : "no") + '">' + (r[0] ? "erfüllt" : "offen") + '</span>' + r[1] + '</li>'; }).join("") + '</ul>';
+        var anaChanged = ["opt", "aku", "tak", "kin", "ves"].some(function (id) { return v[id] !== tk.start[id]; });
+        if (!anaChanged) html += '<ul class="hints"><li>Eure Variation verändert sicher auch, welche Informationen B verarbeiten muss. Welche Analysatoren sind stärker oder weniger gefordert? Passt die Regler an.</li></ul>';
+        html += ok ? '<div class="solution"><b>Eine mögliche Lösung</b><p>' + tk.idea + '</p><p><b style="font-family:var(--body);font-size:0.95rem">Informationsanforderungen:</b> ' + tk.ana + '</p><p class="muted">Passt deine beschriebene Übung wirklich zu deiner Reglerstellung? Vergleiche.</p></div>'
+                   : '<p class="muted">Noch nicht alle Bedingungen erfüllt. Die Prüfung aktualisiert sich sofort, wenn ihr die Regler bewegt.</p>';
+      }
+      var ms = state.meas[k] || {};
+      if (ms.pre != null && ms.post != null) {
+        var d = ms.post - ms.pre;
+        html += '<div class="solution"><b>Eure Messung</b><p>Grundübung ' + ms.pre + ' von 10, mit Variation ' + ms.post + ' von 10 (' + (d > 0 ? '+' : d < 0 ? '−' : '±') + Math.abs(d) + ').</p><p class="muted">' +
+          (tk.id === "g7" ? 'Wurde die Übung leichter, sollte die Trefferzahl steigen. Passt das zu euren gesenkten Reglern?' : 'Mehr Druck führt oft zu mehr Fehlern. Erklärt euer Ergebnis mit den Reglern, die ihr erhöht habt.') + '</p></div>';
+      }
+    } else {
+      var top = DRUCK.slice().sort(function (a, b) { return c.e[b] - c.e[a]; }).slice(0, 2);
+      var low = DRUCK.slice().sort(function (a, b) { return c.e[a] - c.e[b]; })[0];
+      var form2 = currentForm();
+      html = '<h3>Dein Profil</h3><p>Höchste Anforderungen: <b>' + top.map(fullName).join(" und ") + '</b>. Geringste: <b>' + fullName(low) + '</b>.</p>';
+      html += '<p>Gleichgewicht: <b>' + v.gg + ' (' + lvl(v.gg) + ')</b>' + (form2 ? ', ' + formById[form2].name : ', Form noch nicht gewählt') + '.</p>';
+      html += '<p class="muted">Leitfragen: Welche Übung bereitet genau diese Anforderungen vor? Wie erhöhst du für Fortgeschrittene den Druck, wie senkst du ihn für Anfänger? Welche Analysatoren könntest du gezielt einschränken, z. B. Augen schließen?</p>';
+    }
+    fb.innerHTML = html;
+  }
+
+  function renderActions() {
+    var a = $("actions"), k = ctxKey(), html = "";
+    if (state.mode === "a") html += '<button class="btn primary" id="act-check">' + (state.done[k] ? "Expertenprofil ausblenden" : "Mit Expertenprofil vergleichen") + '</button>';
+    if (state.mode === "b") html += '<button class="btn primary" id="act-check">Reglerstellung prüfen</button>';
+    html += '<button class="btn" id="act-reset">Regler zurücksetzen</button><button class="btn" id="act-copy">Ergebnis kopieren</button>';
+    a.innerHTML = html;
+    var cbtn = $("act-check");
+    if (cbtn) cbtn.addEventListener("click", function () {
+      if (state.mode === "a") state.done[k] = !state.done[k]; else state.done[k] = true;
+      save(); paintAll(); renderAnalysis(); renderFeedback(); renderActions(); renderTask();
+    });
+    $("act-reset").addEventListener("click", function () { delete state.vals[k]; delete state.done[k]; delete state.forms[k]; save(); renderAll(); toast("Regler zurückgesetzt."); });
+    $("act-copy").addEventListener("click", copyResult);
+  }
+
+  function resultText() {
+    var v = current(), c = compute(v), lines = [], form = currentForm();
+    if (state.mode === "a") lines.push("KAR-Analyse: " + SCEN[state.scen].title, SCEN[state.scen].text);
+    else if (state.mode === "b") lines.push("KAR-Gruppenauftrag Badminton: " + TASKS[state.task].title, TASKS[state.task].base, "Auftrag: " + TASKS[state.task].goal);
+    else lines.push("KAR-Profil: " + (state.sport || "eigene Situation"));
+    lines.push("", "Skala 0–10");
+    function line(id) { var x = "  " + fullName(id) + ": " + v[id] + " (" + lvl(v[id]) + ")"; if (c.e[id] > v[id] + 0.05) x += " → effektiv " + de(c.e[id]); if (state.mode === "b" && TASKS[state.task].start[id] != null) x += " [vorher " + TASKS[state.task].start[id] + "]"; return x; }
+    { lines.push("Informationsanforderungen:"); ["opt", "aku", "tak", "kin", "ves"].forEach(function (id) { lines.push(line(id)); }); }
+    lines.push("Gleichgewichtsregulation:", line("gg"), "  Form: " + (form ? formById[form].name : "nicht gewählt"));
+    lines.push("Druckbedingungen:"); DRUCK.forEach(function (id) { lines.push(line(id)); });
+    if (state.mode === "b") { var ms = state.meas[ctxKey()] || {}; lines.push("Treffer im hinteren Drittel (von 10): Grundübung " + (ms.pre != null ? ms.pre : "–") + ", mit Variation " + (ms.post != null ? ms.post : "–")); }
+    lines.push("", (state.mode === "b" ? "Übungsvariation: " : "Begründung: ") + (state.notes[ctxKey()] || "–"));
+    return lines.join("\n");
+  }
+  function copyResult() {
+    var txt = resultText();
+    function fallback() { var n = $("notes"); var old = n.value; n.value = txt; n.select(); toast("Kopieren nicht erlaubt. Der Text ist markiert, kopiere ihn manuell."); setTimeout(function () { n.value = old; }, 8000); }
+    try { navigator.clipboard.writeText(txt).then(function () { toast("Ergebnis kopiert. Füge es z. B. in LogineoLMS oder dein Dokument ein."); }, fallback); } catch (e) { fallback(); }
+  }
+  var tt;
+  function toast(m) { $("toast").textContent = m; clearTimeout(tt); tt = setTimeout(function () { $("toast").textContent = ""; }, 4000); }
+
+  function renderNotes() {
+    var n = $("notes"), l = $("notes-label");
+    if (state.mode === "a") { l.textContent = "Begründe deine Einstellung"; n.placeholder = "Die Gleichgewichtsanforderung ist hoch, weil …"; }
+    else if (state.mode === "b") { l.textContent = "Beschreibt eure Variation"; n.placeholder = "Wir verändern den Clear so: … Dadurch steigt der …, weil …"; }
+    else { l.textContent = "Begründung und Übungsidee"; n.placeholder = "Profil begründen und eine passende Übung planen …"; }
+    n.value = state.notes[ctxKey()] || "";
+  }
+  $("notes").addEventListener("input", function () { state.notes[ctxKey()] = $("notes").value; save(); });
+
+  function renderAll() {
+    Array.prototype.forEach.call(document.querySelectorAll(".modes button"), function (b) { b.setAttribute("aria-selected", b.getAttribute("data-mode") === state.mode); });
+    var mb = state.mode === "b";
+    current();
+    renderTask(); paintAll(); select(activeId); renderAnalysis(); renderNotes(); renderActions(); renderFeedback();
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".modes button"), function (b) {
+    b.addEventListener("click", function () { state.mode = b.getAttribute("data-mode"); if (state.mode === "b") activeId = TASKS[state.task].focus[0]; save(); renderAll(); });
+  });
+
+  buildFaders();
+  if (state.mode === "b") activeId = TASKS[state.task].focus[0];
+  renderAll();
+})();
+</script>
+
+<script>if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }</script>
+</body></html>
